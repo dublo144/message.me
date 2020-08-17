@@ -25,18 +25,16 @@ module.exports = {
 
       const user = await UserModel.findOne({ email });
       if (!user) {
-        // Todo - remove error log
-        console.error('User not found');
         throw new Error('Invalid credentials');
       }
       const authenticated = await bcrypt.compare(password, user.password);
       if (!authenticated) {
-        // Todo remove
-        console.error('Invvalid password');
         throw new Error('Invalid credentials');
       }
       const token = jwt.sign(
         {
+          firstName: user.firstName,
+          lastName: user.lastName,
           userId: user.userId,
           username: user.username,
           email: user.email
@@ -66,6 +64,8 @@ module.exports = {
 
         const hashedPW = await bcrypt.hash(args.UserInput.password, 12);
         const user = new UserModel({
+          firstName: args.UserInput.firstName,
+          lastName: args.UserInput.lastName,
           username: args.UserInput.username,
           email: args.UserInput.email,
           password: hashedPW
