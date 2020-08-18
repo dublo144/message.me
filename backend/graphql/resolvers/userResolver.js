@@ -7,14 +7,16 @@ module.exports = {
   queries: {
     users: async (_, __, context) => {
       try {
-        if (context.req?.headers.authorization) {
-          const token = context.req.headers.authorization.split('Bearer ')[1];
+        if (context.req?.headers.Authorization) {
+          const token = context.req.headers.Authorization.split('Bearer ')[1];
           jwt.verify(token, process.env.SECRET, (err, decodedToken) => {
             if (err) throw new AuthenticationError('Unauthenticated');
           });
+          const users = await UserModel.find();
+          return users;
+        } else {
+          throw new AuthenticationError('Unauthenticated');
         }
-        const users = await UserModel.find();
-        return users;
       } catch (error) {
         console.error(error);
         throw error;
@@ -53,7 +55,7 @@ module.exports = {
     }
   },
   mutations: {
-    register: async (_, args) => {
+    signUp: async (_, args) => {
       try {
         const existingUser = await UserModel.findOne({
           email: args.UserInput.email

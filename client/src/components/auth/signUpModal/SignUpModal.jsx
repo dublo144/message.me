@@ -16,11 +16,10 @@ const SignUpModal = () => {
       <Modal
         className={'signup-modal'}
         visible={visible}
-        title={'Sign up'}
         footer={null}
         onCancel={() => setVisible(false)}
       >
-        <SignUpForm />
+        <SignUpForm setVisible={setVisible} />
       </Modal>
     </>
   );

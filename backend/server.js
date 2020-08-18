@@ -8,20 +8,13 @@ const server = new ApolloServer({ typeDefs, resolvers, context: (ctx) => ctx });
 
 const app = express();
 
-app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
+server.applyMiddleware({
+  app,
+  cors: {
+    origin: new RegExp('/*/'),
+    credentials: true
   }
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST,GET,OPTIONS');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'Content-Type, Authorization, x-access-token'
-  );
-  next();
 });
-
-server.applyMiddleware({ app });
 
 mongoose
   .connect(
