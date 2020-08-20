@@ -10,8 +10,9 @@ import {
 import { setContext } from '@apollo/client/link/context';
 import App from './App';
 import 'antd/dist/antd.css';
-import './App.less';
 import { backendUrl } from './config/settings';
+import { AuthProvider } from './contexts/AuthContext';
+import './index.less';
 
 const httpLink = createHttpLink({
   uri: backendUrl
@@ -38,7 +39,9 @@ const client = new ApolloClient({
 ReactDOM.render(
   <ApolloProvider client={client}>
     <HashRouter>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </HashRouter>
   </ApolloProvider>,
   document.getElementById('root')

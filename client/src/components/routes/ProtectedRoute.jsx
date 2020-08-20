@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children, ...rest }) => {
         ) : (
           <Redirect
             to={{
-              pathname: '/unauthorized',
+              pathname: '/',
               state: { from: location }
             }}
           />

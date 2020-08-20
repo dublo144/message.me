@@ -15,6 +15,7 @@ const parseJwt = (token) => {
 export const getUserinfo = (token) => {
   const jwtTokenParsed = parseJwt(token);
   return {
+    userId: jwtTokenParsed.userId,
     username: jwtTokenParsed.username,
     email: jwtTokenParsed.email
   };

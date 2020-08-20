@@ -23,6 +23,7 @@ module.exports = {
       }
     },
     signIn: async (_, args) => {
+      console.log('Hello');
       const { email, password } = args;
 
       const user = await UserModel.findOne({ email });
@@ -37,7 +38,7 @@ module.exports = {
         {
           firstName: user.firstName,
           lastName: user.lastName,
-          userId: user.userId,
+          userId: user.id,
           username: user.username,
           email: user.email
         },

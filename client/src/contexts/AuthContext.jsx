@@ -1,48 +1,25 @@
 import React from 'react';
-import { useQuery } from '@apollo/client';
-import { apiUtils } from '../helpers/apiUtils';
 import { getUserinfo } from '../helpers/JwtTokenParser';
-import { gqlQueries } from '../helpers/graphqlQueries';
 
 const AuthStateContext = React.createContext();
 const AuthDispatchContext = React.createContext();
-
-const status = {
-  IDLE: 'idle',
-  PENDING: 'pending',
-  RESOLVED: 'resolved',
-  REJECTED: 'rejected'
-};
 
 const initialState = {
   jwtToken: '',
   userId: '',
   username: '',
   isLoggedIn: false,
-  status: status.IDLE,
   error: null
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
-    // Sign in
     case 'SIGN_IN': {
-      return { ...state, status: status.PENDING };
+      return signIn(state, action);
     }
-    case 'SIGN_IN_SUCCESS': {
-      // Maybe move to cookie or state??
-      localStorage.setItem('jwtToken', action.payload.jwtToken);
-      return {
-        ...state,
-        status: status.RESOLVED,
-        userId: action.payload.userId,
-        username: action.payload.username,
-        jwtToken: action.payload.jwtToken,
-        isLoggedIn: true
-      };
+    case 'SIGN_OUT': {
+      return signOut();
     }
-    case 'SIGN_IN_FAILED':
-      return { status: status.REJECTED, error: action.payload.error };
     default: {
       throw new Error(`Unhandled type: ${action.type}`);
     }
@@ -53,15 +30,32 @@ const init = (initialState) => {
   const token = localStorage.getItem('jwtToken');
 
   if (token) {
-    const { username } = getUserinfo(token);
+    const { userId, username } = getUserinfo(token);
     return {
       ...initialState,
       jwtToken: token,
+      userId: userId,
       username: username,
       isLoggedIn: true
     };
   }
 
+  return initialState;
+};
+
+const signIn = (state, action) => {
+  localStorage.setItem('jwtToken', action.payload.token);
+  return {
+    ...state,
+    userId: action.payload.userId,
+    username: action.payload.username,
+    jwtToken: action.payload.token,
+    isLoggedIn: true
+  };
+};
+
+const signOut = () => {
+  localStorage.removeItem('jwtToken');
   return initialState;
 };
 
@@ -90,27 +84,6 @@ const useAuthDispatch = () => {
     throw new Error('useAuthDispatch must be used within a AuthProvider');
   }
   return context;
-};
-
-const signIn = async (email, password, dispatch) => {
-  dispatch({ type: 'SIGN_IN' });
-  const reqBody = {
-    query: gqlQueries.LOGIN(email, password)
-  };
-  try {
-    const opts = apiUtils.makeOpts(reqBody);
-    const res = await apiUtils.fetchData(opts);
-    const { username, jwtToken } = res.data.login;
-    dispatch({
-      type: 'SIGN_IN_SUCCESS',
-      payload: {
-        username,
-        jwtToken
-      }
-    });
-  } catch (e) {
-    dispatch({ type: 'SIGN_IN_FAILED', payload: e });
-  }
 };
 
 export { AuthProvider, useAuthState, useAuthDispatch, signIn };
