@@ -18,7 +18,28 @@ const SIGN_UP = gql`
   }
 `;
 
+const CHANNEL_DETAILS = gql`
+  query ChannelDetails($input: String!) {
+    channelDetails(channelId: $input) {
+      id
+      name
+      description
+    }
+  }
+`;
+
+const CHANNELS = gql`
+  query Channels {
+    channels {
+      id
+      name
+    }
+  }
+`;
+
 export const queries = {
   SIGN_IN: SIGN_IN,
-  SIGN_UP: SIGN_UP
+  SIGN_UP: SIGN_UP,
+  CHANNEL_DETAILS: CHANNEL_DETAILS,
+  CHANNELS: CHANNELS
 };

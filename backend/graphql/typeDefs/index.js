@@ -27,6 +27,7 @@ module.exports = gql`
   }
 
   type Channel {
+    id: ID!
     name: String!
     description: String
     admins: [User!]!
@@ -45,6 +46,7 @@ module.exports = gql`
     signIn(email: String!, password: String!): AuthData!
 
     channels: [Channel!]!
+    channelDetails(channelId: String!): Channel!
   }
 
   type Mutation {

@@ -12,6 +12,19 @@ module.exports = {
         console.error(error);
         throw error;
       }
+    },
+    channelDetails: async (_, args, context) => {
+      try {
+        const { userId } = isAuthenticated(context);
+        const channel = await ChannelModel.findOne({ _id: args.channelId });
+        if (!channel) throw new Error('Channel does not exist');
+        if (channel.members.filter((member) => member.id === userId) === 0)
+          throw new Error('User is not a member of the channel');
+        return channel;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
     }
   },
   mutations: {

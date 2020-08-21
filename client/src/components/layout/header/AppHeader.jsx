@@ -14,7 +14,7 @@ import { useAuthState, useAuthDispatch } from '../../../contexts/AuthContext';
 const { Header } = Layout;
 
 const AppHeader = () => {
-  const { isLoggedIn, username } = useAuthState();
+  const { username } = useAuthState();
   const dispatch = useAuthDispatch();
 
   const dropdownMenu = (
@@ -25,12 +25,9 @@ const AppHeader = () => {
     </Menu>
   );
   return (
-    <Header className='header'>
+    <Header className='app-header'>
       <div className='logo' />
       <Menu mode='horizontal' defaultSelectedKeys={['2']}>
-        <Menu.Item key='dashboard' icon={<DashboardOutlined />}>
-          <Link to='/dashboard'>Dashboard</Link>
-        </Menu.Item>
         <Space style={{ float: 'right' }}>
           <Tooltip title='Profile'>
             <Link to={`/profile/${username}`}>
@@ -38,11 +35,6 @@ const AppHeader = () => {
             </Link>
           </Tooltip>
           {username}
-          <Tooltip title='Messages'>
-            <Link to={'/messages'}>
-              <Button shape='circle' icon={<MessageOutlined />} />
-            </Link>
-          </Tooltip>
           <Dropdown overlay={dropdownMenu}>
             <Button shape='circle' icon={<DownOutlined />} />
           </Dropdown>

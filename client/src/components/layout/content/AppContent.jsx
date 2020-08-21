@@ -5,13 +5,20 @@ const { Content } = Layout;
 
 const AppContent = ({ children }) => {
   return (
-    <Layout>
+    <Layout
+      style={{
+        minHeight: '100%',
+        marginTop: 64,
+        marginLeft: '15vw'
+      }}
+    >
       <Content
-        className='site-layout-background'
+        className='site-layout-background content'
         style={{
-          padding: 24,
-          marginTop: 64,
-          minHeight: '95vh'
+          minHeight: '100%',
+          overflow: 'initial',
+          margin: 24,
+          padding: 24
         }}
       >
         {children}
