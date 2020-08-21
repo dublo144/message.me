@@ -8,6 +8,7 @@ module.exports = gql`
     username: String!
     email: String!
     password: String
+    channels: [Channel!]
   }
 
   input UserInput {
@@ -25,12 +26,31 @@ module.exports = gql`
     tokenExpiration: Int!
   }
 
+  type Channel {
+    name: String!
+    description: String
+    admins: [User!]!
+    members: [User!]!
+  }
+
+  input ChannelInput {
+    name: String!
+    description: String
+    members: [ID!]
+  }
+
   type Query {
-    users: [User]!
+    users: [User!]!
+
     signIn(email: String!, password: String!): AuthData!
+
+    channels: [Channel!]!
   }
 
   type Mutation {
     signUp(UserInput: UserInput!): User!
+
+    createChannel(ChannelInput: ChannelInput!): Channel!
+    subscribeToChannel(channelId: String!): Channel!
   }
 `;

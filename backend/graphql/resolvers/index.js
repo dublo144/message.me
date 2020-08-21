@@ -1,10 +1,13 @@
 const userResolver = require('./userResolver');
+const channelResolver = require('./channelResolver');
 
 module.exports = {
   Query: {
-    ...userResolver.queries
+    ...userResolver.queries,
+    ...channelResolver.queries
   },
   Mutation: {
-    ...userResolver.mutations
+    ...userResolver.mutations,
+    ...channelResolver.mutations
   }
 };
