@@ -24,6 +24,16 @@ const CHANNEL_DETAILS = gql`
       id
       name
       description
+      messages {
+        id
+        user {
+          username
+        }
+        content
+        date
+        likes
+        dislikes
+      }
     }
   }
 `;

@@ -32,12 +32,27 @@ module.exports = gql`
     description: String
     admins: [User!]!
     members: [User!]!
+    messages: [Message!]!
   }
 
   input ChannelInput {
     name: String!
     description: String
     members: [ID!]
+  }
+
+  type Message {
+    id: ID!
+    user: User!
+    content: String!
+    date: String!
+    likes: Int
+    dislikes: Int
+  }
+
+  input MessageInput {
+    channelId: ID!
+    content: String!
   }
 
   type Query {
@@ -54,5 +69,7 @@ module.exports = gql`
 
     createChannel(ChannelInput: ChannelInput!): Channel!
     subscribeToChannel(channelId: String!): Channel!
+
+    message(MessageInput: MessageInput!): Message!
   }
 `;

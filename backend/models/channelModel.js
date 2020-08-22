@@ -24,6 +24,13 @@ const channelSchema = new Schema({
       ref: 'User',
       autopopulate: true
     }
+  ],
+  messages: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Message',
+      autopopulate: true
+    }
   ]
 });
 
