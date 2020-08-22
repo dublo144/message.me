@@ -7,22 +7,60 @@ import {
 } from '@ant-design/icons';
 import { useQuery, useLazyQuery } from '@apollo/client';
 import { queries } from '../../../helpers/graphqlQueries';
+import {
+  useChannelDispatch,
+  useChannelState
+} from '../../../contexts/ChannelContext';
 
 const { Sider } = Layout;
 
-const SideBar = (props) => {
-  const {
-    loading: channelsLoading,
-    error: channelsError,
-    data: channelsData
-  } = useQuery(queries.CHANNELS);
+const SideBar = () => {
+  const dispatch = useChannelDispatch();
+  const { channels } = useChannelState();
 
-  const [
-    channelDetails,
-    { loading: channelLoading, error: channelError, data: channelData }
-  ] = useLazyQuery(queries.CHANNEL_DETAILS, {
-    onCompleted: props.setSelectedChannel
+  const { loading: channelsLoading } = useQuery(queries.CHANNELS, {
+    onCompleted: (data) =>
+      dispatch({
+        type: 'GET_CHANNELS_SUCCESS',
+        payload: {
+          channels: data.channels
+        }
+      }),
+    onError: (error) =>
+      dispatch({
+        type: 'GET_CHANNELS_ERROR',
+        payload: {
+          error
+        }
+      })
   });
+
+  const [channelDetails, { loading: channelLoading }] = useLazyQuery(
+    queries.CHANNEL_DETAILS,
+    {
+      onCompleted: (data) =>
+        dispatch({
+          type: 'SELECT_CHANNEL_SUCCESS',
+          payload: {
+            selectedChannel: data.channelDetails
+          }
+        }),
+      onError: (error) =>
+        dispatch({
+          type: 'SELECT_CHANNEL_ERROR',
+          payload: {
+            error
+          }
+        })
+    }
+  );
+
+  React.useEffect(() => {
+    dispatch({
+      type: 'SET_LOADING',
+      payload: { loading: channelLoading || channelsLoading }
+    });
+  }, [channelLoading, channelsLoading]);
 
   return (
     <Sider
@@ -49,7 +87,7 @@ const SideBar = (props) => {
           icon={<CommentOutlined />}
           title='My Channels'
         >
-          {channelsData?.channels.map((channel) => (
+          {channels.map((channel) => (
             <Menu.Item
               key={channel.id}
               onClick={() =>

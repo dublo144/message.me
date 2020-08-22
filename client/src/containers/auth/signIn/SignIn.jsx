@@ -9,10 +9,20 @@ import { Link, Redirect } from 'react-router-dom';
 const SignIn = () => {
   const dispatch = useAuthDispatch();
 
-  const [
-    signIn,
-    { data, loading: queryLoading, error: queryError }
-  ] = useLazyQuery(queries.SIGN_IN);
+  const [signIn, { loading: queryLoading, error: queryError }] = useLazyQuery(
+    queries.SIGN_IN,
+    {
+      onCompleted: (data) => {
+        dispatch({
+          type: 'SIGN_IN',
+          payload: {
+            ...data.signIn
+          }
+        });
+        return <Redirect to='/' />;
+      }
+    }
+  );
 
   const onFinish = (values) => {
     signIn({ variables: { email: values.email, password: values.password } });
@@ -21,16 +31,6 @@ const SignIn = () => {
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
   };
-
-  if (data?.signIn) {
-    dispatch({
-      type: 'SIGN_IN',
-      payload: {
-        ...data.signIn
-      }
-    });
-    <Redirect to='/' />;
-  }
 
   return (
     <Row

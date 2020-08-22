@@ -5,6 +5,7 @@ import { useAuthState } from '../contexts/AuthContext';
 import SignIn from '../containers/auth/signIn/SignIn';
 import SignUp from '../containers/auth/signUp/SignUp';
 import Channels from '../containers/channel/Channels';
+import { ChannelProvider } from '../contexts/ChannelContext';
 
 const Routes = () => {
   const { isLoggedIn } = useAuthState();
@@ -24,7 +25,9 @@ const Routes = () => {
         {isLoggedIn ? <Redirect to={'/channels'} /> : <SignUp />}
       </Route>
       <ProtectedRoute path='/channels'>
-        <Channels />
+        <ChannelProvider>
+          <Channels />
+        </ChannelProvider>
       </ProtectedRoute>
     </Switch>
   );

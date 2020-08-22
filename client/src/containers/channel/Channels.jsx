@@ -5,10 +5,10 @@ import SideBar from '../../components/layout/sidebar/SideBar';
 import AppHeader from '../../components/layout/header/AppHeader';
 import ChannelView from './ChannelView';
 import Editor from './Editor';
+import { useChannelState } from '../../contexts/ChannelContext';
 
-const Channels = (props) => {
-  const [selectedChannel, setSelectedChannel] = React.useState(null);
-
+const Channels = () => {
+  const { selectedChannel } = useChannelState();
   return (
     <Layout
       style={{
@@ -17,7 +17,7 @@ const Channels = (props) => {
     >
       <AppHeader />
       <Layout>
-        <SideBar setSelectedChannel={setSelectedChannel} />
+        <SideBar />
         <Layout
           style={{
             marginTop: 64,
@@ -28,9 +28,9 @@ const Channels = (props) => {
         >
           {selectedChannel && (
             <PageHeader
-              title={`# ${selectedChannel?.channelDetails.name}`}
-              subTitle={selectedChannel?.channelDetails.description}
-              avatar={{ src: `${selectedChannel?.channelDetails.avatar}` }}
+              title={`# ${selectedChannel.name}`}
+              subTitle={selectedChannel.description}
+              avatar={{ src: `${selectedChannel.avatar}` }}
             />
           )}
           <Layout.Content
@@ -43,7 +43,7 @@ const Channels = (props) => {
               padding: 24
             }}
           >
-            <ChannelView selectedChannel={selectedChannel?.channelDetails} />
+            <ChannelView />
           </Layout.Content>
           {selectedChannel && (
             <Layout.Footer

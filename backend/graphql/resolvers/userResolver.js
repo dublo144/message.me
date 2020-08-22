@@ -42,10 +42,7 @@ module.exports = {
           username: user.username,
           email: user.email
         },
-        process.env.SECRET,
-        {
-          expiresIn: '1h'
-        }
+        process.env.SECRET
       );
       return {
         username: user.username,

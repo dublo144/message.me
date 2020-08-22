@@ -11,8 +11,11 @@ import {
 import { Comment, Divider, List, Result } from 'antd';
 
 import './channel.less';
+import { useChannelState } from '../../contexts/ChannelContext';
 
-const ChannelView = (props) => {
+const ChannelView = () => {
+  const { selectedChannel, loading } = useChannelState();
+
   const messages = [
     {
       author: 'Han Solo',
@@ -60,7 +63,7 @@ const ChannelView = (props) => {
 
   return (
     <>
-      {props.selectedChannel ? (
+      {selectedChannel ? (
         <List
           className='comment-list'
           itemLayout='horizontal'

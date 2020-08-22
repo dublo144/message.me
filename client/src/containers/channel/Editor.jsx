@@ -1,7 +1,12 @@
 import React from 'react';
 import { Form, Input, Avatar, Comment } from 'antd';
+import { useChannelState } from '../../contexts/ChannelContext';
 
-const Editor = (props) => {
+const Editor = () => {
+  const {
+    selectedChannel: { name }
+  } = useChannelState();
+
   return (
     <Comment
       avatar={
@@ -13,7 +18,7 @@ const Editor = (props) => {
       content={
         <Form.Item>
           <Input.TextArea
-            placeholder={`message ${props.channelName}...`}
+            placeholder={`message ${name}...`}
             autoSize={{ minRows: 4, maxRows: 8 }}
           />
         </Form.Item>
