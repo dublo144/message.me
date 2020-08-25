@@ -1,9 +1,10 @@
 import React from 'react';
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, Button, Tooltip } from 'antd';
 import {
   CommentOutlined,
   MessageOutlined,
-  NumberOutlined
+  NumberOutlined,
+  PlusCircleOutlined
 } from '@ant-design/icons';
 import { useQuery, useLazyQuery } from '@apollo/client';
 import { queries } from '../../../helpers/graphqlQueries';
@@ -16,7 +17,7 @@ const { Sider } = Layout;
 
 const SideBar = () => {
   const dispatch = useChannelDispatch();
-  const { channels } = useChannelState();
+  const { channels, conversations } = useChannelState();
 
   const { loading: channelsLoading } = useQuery(queries.CHANNELS, {
     onCompleted: (data) =>
@@ -55,12 +56,58 @@ const SideBar = () => {
     }
   );
 
+  const { loading: conversationsLoading } = useQuery(queries.CONVERSATIONS, {
+    onCompleted: (data) =>
+      dispatch({
+        type: 'GET_CONVERSATIONS_SUCCESS',
+        payload: { conversations: data.conversations }
+      }),
+    onError: (error) =>
+      dispatch({
+        type: 'GET_CONVERSATIONS_ERROR',
+        payload: {
+          error
+        }
+      })
+  });
+
+  const [conversationDetails, { loading: conversationLoading }] = useLazyQuery(
+    queries.CONVERSATION_DETAILS,
+    {
+      onCompleted: (data) =>
+        dispatch({
+          type: 'SELECT_CONVERSATION_SUCCESS',
+          payload: {
+            selectedChannel: data.conversationDetails
+          }
+        }),
+      onError: (error) =>
+        dispatch({
+          type: 'SELECT_CHANNEL_ERROR',
+          payload: {
+            error
+          }
+        })
+    }
+  );
+
   React.useEffect(() => {
     dispatch({
       type: 'SET_LOADING',
-      payload: { loading: channelLoading || channelsLoading }
+      payload: {
+        loading:
+          channelLoading ||
+          channelsLoading ||
+          conversationsLoading ||
+          conversationLoading
+      }
     });
-  }, [channelLoading, channelsLoading]);
+  }, [
+    channelLoading,
+    channelsLoading,
+    conversationsLoading,
+    conversationLoading
+  ]);
 
   return (
     <Sider
@@ -74,7 +121,7 @@ const SideBar = () => {
       <Menu
         mode={'inline'}
         theme={'light'}
-        defaultOpenKeys={['channels', 'privateMessages']}
+        defaultOpenKeys={['channels', 'privateConversations']}
         style={{
           paddingLeft: 15,
           paddingTop: '15vh',
@@ -98,13 +145,43 @@ const SideBar = () => {
               {channel.name}
             </Menu.Item>
           ))}
+          <Menu.Item>
+            <Tooltip title={'New channel'}>
+              <Button
+                icon={<PlusCircleOutlined />}
+                style={{ width: '100%' }}
+                type={'dashed'}
+              />
+            </Tooltip>
+          </Menu.Item>
         </Menu.SubMenu>
 
         <Menu.SubMenu
-          key='privateMessages'
+          key='privateConversations'
           icon={<MessageOutlined />}
-          title='Private Messages'
-        ></Menu.SubMenu>
+          title='Private Conversations'
+        >
+          {conversations.map((conversation) => (
+            <Menu.Item
+              key={conversation.id}
+              icon={<MessageOutlined />}
+              onClick={() =>
+                conversationDetails({ variables: { input: conversation.id } })
+              }
+            >
+              {conversation.name}
+            </Menu.Item>
+          ))}
+          <Menu.Item>
+            <Tooltip title={'New private conversation'}>
+              <Button
+                icon={<PlusCircleOutlined />}
+                style={{ width: '100%' }}
+                type={'dashed'}
+              />
+            </Tooltip>
+          </Menu.Item>
+        </Menu.SubMenu>
       </Menu>
     </Sider>
   );

@@ -11,7 +11,7 @@ const ConversationModel = require('../../models/ConversationModel');
 module.exports = {
   queries: {},
   mutations: {
-    channelMessage: async (_, { channelId, content }, { user }) => {
+    newMessage: async (_, { channelId, content }, { user }) => {
       try {
         if (!user) throw new AuthenticationError('Unauthenticated');
 

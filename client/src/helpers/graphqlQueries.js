@@ -19,12 +19,12 @@ const SIGN_UP = gql`
 `;
 
 const CHANNEL_DETAILS = gql`
-  query ChannelDetails($input: String!) {
+  query ChannelDetails($input: ID!) {
     channelDetails(channelId: $input) {
       id
       name
       description
-      messages {
+      channelMessages {
         id
         user {
           username
@@ -47,6 +47,35 @@ const CHANNELS = gql`
   }
 `;
 
+const CONVERSATIONS = gql`
+  query Conversations {
+    conversations {
+      id
+      name
+    }
+  }
+`;
+
+const CONVERSATION_DETAILS = gql`
+  query ConversationDetails($input: ID!) {
+    conversationDetails(conversationId: $input) {
+      id
+      name
+      description
+      messages {
+        id
+        user {
+          firstName
+          lastName
+          username
+        }
+        content
+        date
+      }
+    }
+  }
+`;
+
 const MESSAGE = gql`
   mutation Message($input: MessageInput!) {
     message(MessageInput: $input) {
@@ -56,9 +85,11 @@ const MESSAGE = gql`
 `;
 
 export const queries = {
-  SIGN_IN: SIGN_IN,
-  SIGN_UP: SIGN_UP,
-  CHANNEL_DETAILS: CHANNEL_DETAILS,
-  CHANNELS: CHANNELS,
-  MESSAGE: MESSAGE
+  SIGN_IN,
+  SIGN_UP,
+  CHANNEL_DETAILS,
+  CHANNELS,
+  CONVERSATIONS,
+  CONVERSATION_DETAILS,
+  MESSAGE
 };

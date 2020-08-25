@@ -1,5 +1,4 @@
 import React from 'react';
-import { useLazyQuery } from '@apollo/client';
 
 const ChannelStateContext = React.createContext();
 const ChannelDispatchContext = React.createContext();
@@ -7,6 +6,7 @@ const ChannelDispatchContext = React.createContext();
 const initialState = {
   channels: [],
   selectedChannel: null,
+  conversations: [],
   loading: false,
   error: null
 };
@@ -43,6 +43,31 @@ const reducer = (state, action) => {
         error: action.payload.error
       };
     }
+    case 'GET_CONVERSATIONS_SUCCESS': {
+      return {
+        ...state,
+        conversations: action.payload.conversations
+      };
+    }
+    case 'GET_CONVERSATIONS_ERROR': {
+      return {
+        ...state,
+        error: action.payload.error
+      };
+    }
+    case 'SELECT_CONVERSATION_SUCCESS': {
+      return {
+        ...state,
+        selectedChannel: action.payload.selectedChannel
+      };
+    }
+    case 'SELECT_CONVERSATION_ERROR': {
+      return {
+        ...state,
+        error: action.payload.error
+      };
+    }
+
     default: {
       throw new Error(`Unhandled type: ${action.type}`);
     }

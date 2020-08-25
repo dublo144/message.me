@@ -20,7 +20,7 @@ module.exports = {
         throw error;
       }
     },
-    conversation: async (_, { conversationId }, { user }) => {
+    conversationDetails: async (_, { conversationId }, { user }) => {
       try {
         if (!user) throw new AuthenticationError('Unauthenticated');
 
@@ -35,7 +35,11 @@ module.exports = {
     }
   },
   mutations: {
-    conversation: async (_, { recipientIds, name, description }, { user }) => {
+    newConversation: async (
+      _,
+      { recipientIds, name, description },
+      { user }
+    ) => {
       try {
         if (!user) throw new AuthenticationError('Unauthenticated');
 
