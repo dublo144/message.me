@@ -1,13 +1,11 @@
 const mongoose = require('mongoose');
-const autopopulate = require('mongoose-autopopulate');
 
 const Schema = mongoose.Schema;
 
-const messageSchema = new Schema({
+const channelMessageSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
-    autopopulate: true
+    ref: 'User'
   },
   content: {
     type: String,
@@ -21,6 +19,4 @@ const messageSchema = new Schema({
   dislikes: Number
 });
 
-messageSchema.plugin(autopopulate);
-
-module.exports = mongoose.model('Message', messageSchema);
+module.exports = mongoose.model('ChannelMessage', channelMessageSchema);

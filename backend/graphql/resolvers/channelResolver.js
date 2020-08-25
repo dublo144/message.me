@@ -1,30 +1,30 @@
-const { isAuthenticated } = require('../../helpers/isAuth');
 const ChannelModel = require('../../models/ChannelModel');
 const UserModel = require('../../models/UserModel');
+const { transformChannel } = require('./merge');
 
 module.exports = {
   queries: {
-    channels: async (_, __, context) => {
+    channels: async (_, __, { user }) => {
       try {
-        if (!context.user) throw new AuthenticationError('Unauthenticated');
-        return await ChannelModel.find({ members: context.user.userId });
+        if (!user) throw new AuthenticationError('Unauthenticated');
+        const channels = await ChannelModel.find({ members: user.userId });
+        return channels.map(transformChannel);
       } catch (error) {
         console.error(error);
         throw error;
       }
     },
-    channelDetails: async (_, args, context) => {
+    channelDetails: async (_, { channelId }, { user }) => {
       try {
-        if (!context.user) throw new AuthenticationError('Unauthenticated');
-        const channel = await ChannelModel.findOne({ _id: args.channelId });
+        if (!user) throw new AuthenticationError('Unauthenticated');
+
+        const channel = await ChannelModel.findById(channelId);
         if (!channel) throw new Error('Channel does not exist');
-        if (
-          channel.members.filter(
-            (member) => member.id === context.user.userId
-          ) === 0
-        )
+
+        if (channel.members.filter((member) => member.id === user.userId) === 0)
           throw new Error('User is not a member of the channel');
-        return channel;
+
+        return transformChannel(channel);
       } catch (error) {
         console.error(error);
         throw error;
@@ -32,52 +32,52 @@ module.exports = {
     }
   },
   mutations: {
-    subscribeToChannel: async (_, args, context) => {
+    subscribeToChannel: async (_, { channelId }, { user }) => {
       try {
         if (!context.user) throw new AuthenticationError('Unauthenticated');
 
-        const channel = await ChannelModel.findOne({ _id: args.channelId });
+        const channel = await ChannelModel.findById(channelId);
         if (!channel) throw new Error('Channel does not exist');
 
-        const user = UserModel.findOne({ _id: context.user.userId });
+        const savedUser = UserModel.findById(user.userId);
 
-        if (channel.members.find((user) => user.id === context.user.userId)) {
+        if (channel.members.find((user) => savedUser.id === user.userId)) {
           throw new Error('User already subscribed to the channel');
-        } else {
-          channel.members.push(user);
-          console.log(channel);
         }
+        channel.members.push(savedUser);
+        const savedChannel = await channel.save();
+        return transformChannel(savedChannel);
       } catch (error) {
         console.error(error);
         throw error;
       }
     },
-    createChannel: async (_, args, context) => {
+    createChannel: async (_, args, { user }) => {
       try {
         // Are we authenticated?
-        if (!context.user) throw new AuthenticationError('Unauthenticated');
+        if (!user) throw new AuthenticationError('Unauthenticated');
 
         // Create Channel Mongoose Model
         const channel = new ChannelModel({
           name: args.ChannelInput.name,
           description: args.ChannelInput.description,
-          admins: [context.user.userId],
-          members: [...args.ChannelInput.members, context.user.userId]
+          admins: [user.userId],
+          members: [...args.ChannelInput.members, user.userId]
         });
         const savedChannel = await channel.save();
 
         // Find the members
         const users = await UserModel.find({
-          _id: { $in: [...args.ChannelInput.members, context.user.userId] }
+          _id: { $in: [...args.ChannelInput.members, user.userId] }
         });
         // Add the channel to the members
-        users.map((user) => {
+        users.map(async (user) => {
           user.channels.push(savedChannel);
-          user.save();
+          await user.save();
         });
 
         // Return the channel
-        return savedChannel;
+        return transformChannel(savedChannel);
       } catch (error) {
         console.error(error);
         throw error;

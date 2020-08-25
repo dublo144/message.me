@@ -8,7 +8,7 @@ module.exports = gql`
     username: String!
     email: String!
     password: String
-    channels: [Channel!]
+    channels: [Channel!]!
   }
 
   input UserInput {
@@ -32,7 +32,7 @@ module.exports = gql`
     description: String
     admins: [User!]!
     members: [User!]!
-    messages: [ChannelMessage]!
+    channelMessages: [ChannelMessage!]!
   }
 
   input ChannelInput {
@@ -50,11 +50,18 @@ module.exports = gql`
     dislikes: Int
   }
 
-  type PrivateMessage {
+  type Conversation {
     id: ID!
+    users: [User!]!
+    name: String
+    description: String
+    messages: [ConversationMessage!]!
+  }
+
+  type ConversationMessage {
+    id: ID!
+    user: ID!
     content: String!
-    from: User!
-    to: User!
     date: String!
   }
 
@@ -63,9 +70,10 @@ module.exports = gql`
 
     signIn(email: String!, password: String!): AuthData!
 
-    privateMessages(fromUserId: String!): [PrivateMessage]!
+    conversations: [Conversation!]!
+    conversation(conversationId: String!): Conversation!
 
-    channels: [Channel]!
+    channels: [Channel!]!
     channelDetails(channelId: String!): Channel!
   }
 
@@ -74,8 +82,13 @@ module.exports = gql`
 
     createChannel(ChannelInput: ChannelInput!): Channel!
     subscribeToChannel(channelId: String!): Channel!
-
     channelMessage(channelId: ID!, content: String!): ChannelMessage!
-    privateMessage(to: ID!, content: String!): PrivateMessage!
+
+    conversation(
+      recipientIds: [ID!]!
+      name: String
+      description: String
+    ): Conversation!
+    conversationMessage(conversationId: ID!, content: String!): Conversation!
   }
 `;

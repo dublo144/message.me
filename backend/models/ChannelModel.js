@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const autopopulate = require('mongoose-autopopulate');
 
 const Schema = mongoose.Schema;
 
@@ -14,26 +13,21 @@ const channelSchema = new Schema({
   admins: [
     {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      autopopulate: true
+      ref: 'User'
     }
   ],
   members: [
     {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      autopopulate: true
+      ref: 'User'
     }
   ],
-  messages: [
+  channelMessages: [
     {
       type: Schema.Types.ObjectId,
-      ref: 'Message',
-      autopopulate: true
+      ref: 'ChannelMessage'
     }
   ]
 });
-
-channelSchema.plugin(autopopulate);
 
 module.exports = mongoose.model('Channel', channelSchema);

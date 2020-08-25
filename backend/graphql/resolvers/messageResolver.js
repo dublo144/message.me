@@ -1,43 +1,23 @@
-const { isAuthenticated } = require('../../helpers/isAuth');
 const ChannelModel = require('../../models/ChannelModel');
-const MessageModel = require('../../models/MessageModel');
+const ChannelMessageModel = require('../../models/ChannelMessageModel');
 const {
   AuthenticationError,
   UserInputError
 } = require('apollo-server-express');
-const UserModel = require('../../models/UserModel');
-const PrivateMessageModel = require('../../models/PrivateMessageModel');
+const ConversationMessageModel = require('../../models/ConversationMessageModel');
+const { transformChannelMessage } = require('./merge');
+const ConversationModel = require('../../models/ConversationModel');
 
 module.exports = {
-  queries: {
-    privateMessages: async (_, { fromUserId }, { user }) => {
-      try {
-        if (!user) throw new AuthenticationError('Unauthenticated');
-
-        const otherUser = await UserModel.findOne({ _id: fromUserId });
-        console.log(fromUserId);
-        if (!otherUser) throw new UserInputError('Other user not found');
-
-        const messages = await PrivateMessageModel.find({
-          from: { $in: [fromUserId, user.userId] },
-          to: { $in: [fromUserId, user.userId] }
-        });
-        console.log(messages);
-        return messages;
-      } catch (error) {
-        console.error(error);
-        throw error;
-      }
-    }
-  },
+  queries: {},
   mutations: {
-    channelMessage: async (_, args, { user }) => {
+    channelMessage: async (_, { channelId, content }, { user }) => {
       try {
         if (!user) throw new AuthenticationError('Unauthenticated');
 
-        const message = new MessageModel({
+        const message = new ChannelMessageModel({
           user: user.userId,
-          content: args.MessageInput.content,
+          content: content,
           date: new Date(),
           likes: 0,
           dislikes: 0
@@ -45,36 +25,38 @@ module.exports = {
 
         const savedMessage = await message.save();
 
-        const channel = await ChannelModel.findOne({
-          _id: args.MessageInput.channelId
-        });
+        const channel = await ChannelModel.findById(channelId);
         if (!channel) throw new Error('Channel does not exist');
 
-        channel.messages.push(savedMessage);
+        channel.channelMessages.push(savedMessage);
         channel.save();
 
-        return savedMessage;
+        return transformChannelMessage(savedMessage);
       } catch (error) {
         console.error(error);
         throw error;
       }
     },
-    privateMessage: async (_, { to, content }, { user }) => {
+    conversationMessage: async (_, { conversationId }, { user }) => {
       try {
         if (!user) throw new AuthenticationError('Unauthenticated');
 
-        const recipient = await UserModel.findOne({ _id: to });
-        if (!recipient) throw new UserInputError('Recipient not found');
+        const conversation = ConversationModel.findById(conversationId);
+        if (!conversation) throw new UserInputError('Conversation not found');
 
         if (content.trim() === '') throw new UserInputError('Message empty');
 
-        const message = new PrivateMessageModel({
-          from: user.userId,
-          to: recipient._id,
+        const message = new ConversationMessageModel({
           date: new Date(),
           content
         });
-        return await message.save();
+
+        const savedMessage = await message.save();
+
+        conversation.messages.push(savedMessage);
+        await conversation.save();
+
+        return savedMessage;
       } catch (error) {
         console.log(error);
         throw error;

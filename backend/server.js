@@ -8,7 +8,11 @@ const authMiddleware = require('./utils/authMiddleware');
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: authMiddleware
+  context: authMiddleware,
+  engine: {
+    reportSchema: true,
+    variant: 'current'
+  }
 });
 
 const app = express();
