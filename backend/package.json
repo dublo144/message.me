@@ -9,6 +9,7 @@
     "bcryptjs": "^2.4.3",
     "express": "^4.17.1",
     "graphql": "^15.3.0",
+    "graphql-subscriptions": "^1.1.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.10.0",
     "mongoose-autopopulate": "^0.12.2"

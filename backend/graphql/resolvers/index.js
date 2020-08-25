@@ -5,7 +5,8 @@ const messageResolver = require('./messageResolver');
 module.exports = {
   Query: {
     ...userResolver.queries,
-    ...channelResolver.queries
+    ...channelResolver.queries,
+    ...messageResolver.queries
   },
   Mutation: {
     ...userResolver.mutations,

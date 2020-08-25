@@ -47,9 +47,18 @@ const CHANNELS = gql`
   }
 `;
 
+const MESSAGE = gql`
+  mutation Message($input: MessageInput!) {
+    message(MessageInput: $input) {
+      id
+    }
+  }
+`;
+
 export const queries = {
   SIGN_IN: SIGN_IN,
   SIGN_UP: SIGN_UP,
   CHANNEL_DETAILS: CHANNEL_DETAILS,
-  CHANNELS: CHANNELS
+  CHANNELS: CHANNELS,
+  MESSAGE: MESSAGE
 };

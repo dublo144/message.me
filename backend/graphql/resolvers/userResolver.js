@@ -1,29 +1,21 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const UserModel = require('../../models/userModel');
+const UserModel = require('../../models/UserModel');
 const { AuthenticationError } = require('apollo-server-express');
 
 module.exports = {
   queries: {
     users: async (_, __, context) => {
       try {
-        if (context.req?.headers.Authorization) {
-          const token = context.req.headers.Authorization.split('Bearer ')[1];
-          jwt.verify(token, process.env.SECRET, (err, decodedToken) => {
-            if (err) throw new AuthenticationError('Unauthenticated');
-          });
-          const users = await UserModel.find();
-          return users;
-        } else {
-          throw new AuthenticationError('Unauthenticated');
-        }
+        if (!context?.user) throw new AuthenticationError('Unauthenticated');
+        const users = await UserModel.find();
+        return users;
       } catch (error) {
         console.error(error);
         throw error;
       }
     },
     signIn: async (_, args) => {
-      console.log('Hello');
       const { email, password } = args;
 
       const user = await UserModel.findOne({ email });

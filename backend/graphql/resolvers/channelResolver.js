@@ -1,13 +1,13 @@
 const { isAuthenticated } = require('../../helpers/isAuth');
-const ChannelModel = require('../../models/channelModel');
-const UserModel = require('../../models/userModel');
+const ChannelModel = require('../../models/ChannelModel');
+const UserModel = require('../../models/UserModel');
 
 module.exports = {
   queries: {
     channels: async (_, __, context) => {
       try {
-        const { userId } = isAuthenticated(context);
-        return await ChannelModel.find({ members: userId });
+        if (!context.user) throw new AuthenticationError('Unauthenticated');
+        return await ChannelModel.find({ members: context.user.userId });
       } catch (error) {
         console.error(error);
         throw error;
@@ -15,10 +15,14 @@ module.exports = {
     },
     channelDetails: async (_, args, context) => {
       try {
-        const { userId } = isAuthenticated(context);
+        if (!context.user) throw new AuthenticationError('Unauthenticated');
         const channel = await ChannelModel.findOne({ _id: args.channelId });
         if (!channel) throw new Error('Channel does not exist');
-        if (channel.members.filter((member) => member.id === userId) === 0)
+        if (
+          channel.members.filter(
+            (member) => member.id === context.user.userId
+          ) === 0
+        )
           throw new Error('User is not a member of the channel');
         return channel;
       } catch (error) {
@@ -30,14 +34,14 @@ module.exports = {
   mutations: {
     subscribeToChannel: async (_, args, context) => {
       try {
-        const { userId } = isAuthenticated(context);
+        if (!context.user) throw new AuthenticationError('Unauthenticated');
 
         const channel = await ChannelModel.findOne({ _id: args.channelId });
         if (!channel) throw new Error('Channel does not exist');
 
-        const user = UserModel.findOne({ _id: userId });
+        const user = UserModel.findOne({ _id: context.user.userId });
 
-        if (channel.members.find((user) => user.id === userId)) {
+        if (channel.members.find((user) => user.id === context.user.userId)) {
           throw new Error('User already subscribed to the channel');
         } else {
           channel.members.push(user);
@@ -51,20 +55,20 @@ module.exports = {
     createChannel: async (_, args, context) => {
       try {
         // Are we authenticated?
-        const { userId } = isAuthenticated(context);
+        if (!context.user) throw new AuthenticationError('Unauthenticated');
 
         // Create Channel Mongoose Model
         const channel = new ChannelModel({
           name: args.ChannelInput.name,
           description: args.ChannelInput.description,
-          admins: [userId],
-          members: [...args.ChannelInput.members, userId]
+          admins: [context.user.userId],
+          members: [...args.ChannelInput.members, context.user.userId]
         });
         const savedChannel = await channel.save();
 
         // Find the members
         const users = await UserModel.find({
-          _id: { $in: [...args.ChannelInput.members, userId] }
+          _id: { $in: [...args.ChannelInput.members, context.user.userId] }
         });
         // Add the channel to the members
         users.map((user) => {

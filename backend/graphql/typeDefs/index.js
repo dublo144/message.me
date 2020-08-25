@@ -32,7 +32,7 @@ module.exports = gql`
     description: String
     admins: [User!]!
     members: [User!]!
-    messages: [Message!]!
+    messages: [ChannelMessage]!
   }
 
   input ChannelInput {
@@ -41,7 +41,7 @@ module.exports = gql`
     members: [ID!]
   }
 
-  type Message {
+  type ChannelMessage {
     id: ID!
     user: User!
     content: String!
@@ -50,9 +50,12 @@ module.exports = gql`
     dislikes: Int
   }
 
-  input MessageInput {
-    channelId: ID!
+  type PrivateMessage {
+    id: ID!
     content: String!
+    from: User!
+    to: User!
+    date: String!
   }
 
   type Query {
@@ -60,7 +63,9 @@ module.exports = gql`
 
     signIn(email: String!, password: String!): AuthData!
 
-    channels: [Channel!]!
+    privateMessages(fromUserId: String!): [PrivateMessage]!
+
+    channels: [Channel]!
     channelDetails(channelId: String!): Channel!
   }
 
@@ -70,6 +75,7 @@ module.exports = gql`
     createChannel(ChannelInput: ChannelInput!): Channel!
     subscribeToChannel(channelId: String!): Channel!
 
-    message(MessageInput: MessageInput!): Message!
+    channelMessage(channelId: ID!, content: String!): ChannelMessage!
+    privateMessage(to: ID!, content: String!): PrivateMessage!
   }
 `;
