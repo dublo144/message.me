@@ -1,5 +1,4 @@
 const ChannelModel = require('../../models/ChannelModel');
-const ChannelMessageModel = require('../../models/ChannelMessageModel');
 const {
   AuthenticationError,
   UserInputError
@@ -7,6 +6,7 @@ const {
 const ConversationMessageModel = require('../../models/ConversationMessageModel');
 const { transformChannelMessage } = require('./merge');
 const ConversationModel = require('../../models/ConversationModel');
+const MessageModel = require('../../models/MessageModel');
 
 module.exports = {
   queries: {},
@@ -15,7 +15,7 @@ module.exports = {
       try {
         if (!user) throw new AuthenticationError('Unauthenticated');
 
-        const message = new ChannelMessageModel({
+        const message = new MessageModel({
           user: user.userId,
           content: content,
           date: new Date(),
@@ -37,18 +37,28 @@ module.exports = {
         throw error;
       }
     },
-    conversationMessage: async (_, { conversationId }, { user }) => {
+    newConversationMessage: async (
+      _,
+      { conversationId, content },
+      { user }
+    ) => {
       try {
         if (!user) throw new AuthenticationError('Unauthenticated');
+
+        const savedUser = await UserModel.findById(user.userId);
+        if (!savedUser) throw new UserInputError('User not found');
 
         const conversation = ConversationModel.findById(conversationId);
         if (!conversation) throw new UserInputError('Conversation not found');
 
         if (content.trim() === '') throw new UserInputError('Message empty');
 
-        const message = new ConversationMessageModel({
+        const message = new MessageModel({
+          user: savedUser,
           date: new Date(),
-          content
+          content,
+          likes: 0,
+          dislikes: 0
         });
 
         const savedMessage = await message.save();

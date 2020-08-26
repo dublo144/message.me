@@ -9,6 +9,7 @@ module.exports = gql`
     email: String!
     password: String
     channels: [Channel!]!
+    conversations: [Conversation!]!
   }
 
   input UserInput {
@@ -52,7 +53,7 @@ module.exports = gql`
 
   type Conversation {
     id: ID!
-    users: [User!]!
+    members: [User!]!
     name: String
     description: String
     messages: [Message!]!
@@ -67,6 +68,7 @@ module.exports = gql`
 
   type Query {
     users: [User!]!
+    userData(userId: String): User!
 
     signIn(email: String!, password: String!): AuthData!
 
@@ -74,7 +76,7 @@ module.exports = gql`
     conversationDetails(conversationId: ID!): Conversation!
 
     channels: [Channel!]!
-    channelDetails(channelId: ID!): Channel!
+    channelDetails(channelId: String!): Channel!
   }
 
   type Mutation {
@@ -85,9 +87,10 @@ module.exports = gql`
     newMessage(channelId: ID!, content: String!): Message!
 
     newConversation(
-      recipientIds: [ID!]!
+      memberIds: [ID!]!
       name: String
       description: String
     ): Conversation!
+    newConversationMessage(conversationId: ID!, content: String!): Message!
   }
 `;

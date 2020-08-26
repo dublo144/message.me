@@ -12,7 +12,7 @@ module.exports = {
       try {
         if (!user) throw new AuthenticationError('Unauthenticated');
         const conversations = await ConversationModel.find({
-          users: user.userId
+          members: user.userId
         });
         return conversations.map(transformConversation);
       } catch (error) {
@@ -35,11 +35,7 @@ module.exports = {
     }
   },
   mutations: {
-    newConversation: async (
-      _,
-      { recipientIds, name, description },
-      { user }
-    ) => {
+    newConversation: async (_, { memberIds, name, description }, { user }) => {
       try {
         if (!user) throw new AuthenticationError('Unauthenticated');
 
@@ -49,24 +45,27 @@ module.exports = {
         // if (existingConversation)
         //   throw new UserInputError('Conversation already exists');
 
-        const filteredRecipientIds = recipientIds.filter(
-          (r) => r !== user.userId
-        );
+        memberIds = [...new Set([...memberIds, user.userId])];
 
-        const recipients = await UserModel.find({
-          _id: { $in: filteredRecipientIds }
+        const members = await UserModel.find({
+          _id: { $in: memberIds }
         });
-        if (!recipients) throw new Error('Recipients not found');
+        if (!members) throw new Error('Recipients not found');
 
-        if (!name) name = recipients.map((r) => r.firstName).join(', ');
+        if (!name) name = members.map((r) => r.firstName).join(', ');
 
         const conversation = new ConversationModel({
           name,
           description,
-          users: [...recipients, user.userId],
+          members: members,
           messages: []
         });
         const savedConversation = await conversation.save();
+
+        members.map(async (m) => {
+          m.conversations.push(savedConversation);
+          await m.save();
+        });
 
         return transformConversation(savedConversation);
       } catch (error) {

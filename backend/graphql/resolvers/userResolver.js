@@ -1,15 +1,32 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const UserModel = require('../../models/UserModel');
-const { AuthenticationError } = require('apollo-server-express');
+const {
+  AuthenticationError,
+  UserInputError
+} = require('apollo-server-express');
+const { transformUser } = require('./merge');
 
 module.exports = {
   queries: {
-    users: async (_, __, context) => {
+    users: async (_, __, { user }) => {
       try {
-        if (!context?.user) throw new AuthenticationError('Unauthenticated');
+        if (!user) throw new AuthenticationError('Unauthenticated');
         const users = await UserModel.find();
-        return users;
+        return users.map(transformUser);
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
+    userData: async (_, __, { user }) => {
+      try {
+        if (!user) throw new AuthenticationError('Unauthenticated');
+
+        const userData = await UserModel.findById(user.userId);
+        if (!userData) throw new UserInputError('User does not exist');
+
+        return transformUser(userData);
       } catch (error) {
         console.error(error);
         throw error;

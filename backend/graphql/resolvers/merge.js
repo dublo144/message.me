@@ -1,8 +1,8 @@
 const ChannelModel = require('../../models/ChannelModel');
 const UserModel = require('../../models/UserModel');
-const ChannelMessageModel = require('../../models/ChannelMessageModel');
+
 const ConversationModel = require('../../models/ConversationModel');
-const ConversationMessageModel = require('../../models/ConversationMessageModel');
+const MessageModel = require('../../models/MessageModel');
 
 const channel = async (channelId) => {
   try {
@@ -24,12 +24,12 @@ const channels = async (channelIds) => {
   }
 };
 
-const channelMessages = async (messageIds) => {
+const messages = async (messageIds) => {
   try {
-    const messages = await ChannelMessageModel.find({
+    const messages = await MessageModel.find({
       _id: { $in: messageIds }
     });
-    return messages.map(transformChannelMessage);
+    return messages.map(transformMessage);
   } catch (error) {
     console.error(error);
     throw error;
@@ -68,28 +68,17 @@ const conversations = async (conversationIds) => {
   }
 };
 
-const conversationMessages = async (messageIds) => {
-  try {
-    const messages = await ConversationMessageModel.find({
-      _id: { $in: messageIds }
-    });
-    return messages.map(transformConversationMessage);
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-};
-
 const transformUser = (user) => {
   return {
     ...user._doc,
     id: user.id,
-    channels: channels.bind(this, user.channels)
+    password: null,
+    channels: channels.bind(this, user.channels),
+    conversations: conversations.bind(this, user.conversations)
   };
 };
 
-const transformChannelMessage = (message) => {
-  console.log(message);
+const transformMessage = (message) => {
   return {
     ...message._doc,
     id: message.id,
@@ -103,7 +92,7 @@ const transformChannel = (channel) => {
     id: channel.id,
     admins: users.bind(this, channel.admins),
     members: users.bind(this, channel.members),
-    channelMessages: channelMessages.bind(this, channel.channelMessages)
+    messages: messages.bind(this, channel.messages)
   };
 };
 
@@ -111,23 +100,13 @@ const transformConversation = (conversation) => {
   return {
     ...conversation._doc,
     id: conversation.id,
-    users: users.bind(this, conversation.users),
-    messages: conversationMessages.bind(this, conversation.messages)
-  };
-};
-
-const transformConversationMessage = (message) => {
-  return {
-    ...message._doc,
-    id: message.id,
-    user: user.bind(this, message.user)
+    members: users.bind(this, conversation.members),
+    messages: messages.bind(this, conversation.messages)
   };
 };
 
 module.exports = {
   transformUser,
   transformChannel,
-  transformChannelMessage,
-  transformConversation,
-  transformConversationMessage
+  transformConversation
 };

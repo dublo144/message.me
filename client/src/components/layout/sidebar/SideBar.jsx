@@ -19,17 +19,19 @@ const SideBar = () => {
   const dispatch = useChannelDispatch();
   const { channels, conversations } = useChannelState();
 
-  const { loading: channelsLoading } = useQuery(queries.CHANNELS, {
-    onCompleted: (data) =>
+  const { loading: userDataLoading } = useQuery(queries.USER_DATA, {
+    onCompleted: (data) => {
       dispatch({
-        type: 'GET_CHANNELS_SUCCESS',
+        type: 'GET_USER_DATA_SUCCESS',
         payload: {
-          channels: data.channels
+          channels: data.userData.channels,
+          conversations: data.userData.conversations
         }
-      }),
+      });
+    },
     onError: (error) =>
       dispatch({
-        type: 'GET_CHANNELS_ERROR',
+        type: 'GET_USER_DATA_ERROR',
         payload: {
           error
         }
@@ -56,21 +58,6 @@ const SideBar = () => {
     }
   );
 
-  const { loading: conversationsLoading } = useQuery(queries.CONVERSATIONS, {
-    onCompleted: (data) =>
-      dispatch({
-        type: 'GET_CONVERSATIONS_SUCCESS',
-        payload: { conversations: data.conversations }
-      }),
-    onError: (error) =>
-      dispatch({
-        type: 'GET_CONVERSATIONS_ERROR',
-        payload: {
-          error
-        }
-      })
-  });
-
   const [conversationDetails, { loading: conversationLoading }] = useLazyQuery(
     queries.CONVERSATION_DETAILS,
     {
@@ -95,19 +82,10 @@ const SideBar = () => {
     dispatch({
       type: 'SET_LOADING',
       payload: {
-        loading:
-          channelLoading ||
-          channelsLoading ||
-          conversationsLoading ||
-          conversationLoading
+        loading: userDataLoading || channelLoading || conversationLoading
       }
     });
-  }, [
-    channelLoading,
-    channelsLoading,
-    conversationsLoading,
-    conversationLoading
-  ]);
+  }, [userDataLoading, channelLoading, conversationLoading]);
 
   return (
     <Sider
@@ -137,9 +115,9 @@ const SideBar = () => {
           {channels.map((channel) => (
             <Menu.Item
               key={channel.id}
-              onClick={() =>
-                channelDetails({ variables: { input: channel.id } })
-              }
+              onClick={() => {
+                channelDetails({ variables: { input: channel.id } });
+              }}
               icon={<NumberOutlined />}
             >
               {channel.name}
@@ -161,13 +139,13 @@ const SideBar = () => {
           icon={<MessageOutlined />}
           title='Private Conversations'
         >
-          {conversations.map((conversation) => (
+          {conversations?.map((conversation) => (
             <Menu.Item
               key={conversation.id}
               icon={<MessageOutlined />}
-              onClick={() =>
-                conversationDetails({ variables: { input: conversation.id } })
-              }
+              onClick={() => {
+                conversationDetails({ variables: { input: conversation.id } });
+              }}
             >
               {conversation.name}
             </Menu.Item>

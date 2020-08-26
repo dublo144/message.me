@@ -19,13 +19,14 @@ const reducer = (state, action) => {
         loading: action.payload.loading
       };
     }
-    case 'GET_CHANNELS_SUCCESS': {
+    case 'GET_USER_DATA_SUCCESS': {
       return {
         ...state,
-        channels: action.payload.channels
+        channels: action.payload.channels,
+        conversations: action.payload.conversations
       };
     }
-    case 'GET_CHANNELS_ERROR': {
+    case 'GET_USER_DATA_ERROR': {
       return {
         ...state,
         error: action.payload.error
@@ -38,18 +39,6 @@ const reducer = (state, action) => {
       };
     }
     case 'SELECT_CHANNEL_ERROR': {
-      return {
-        ...state,
-        error: action.payload.error
-      };
-    }
-    case 'GET_CONVERSATIONS_SUCCESS': {
-      return {
-        ...state,
-        conversations: action.payload.conversations
-      };
-    }
-    case 'GET_CONVERSATIONS_ERROR': {
       return {
         ...state,
         error: action.payload.error

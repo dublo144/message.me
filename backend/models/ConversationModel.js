@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const conversationSchema = new Schema({
-  users: [
+  members: [
     {
       type: Schema.Types.ObjectId,
       ref: 'User'
