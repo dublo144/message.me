@@ -4,6 +4,9 @@ const messageResolver = require('./messageResolver');
 const conversationResolver = require('./conversationResolver');
 
 module.exports = {
+  Subscription: {
+    ...messageResolver.subscriptions
+  },
   Query: {
     ...userResolver.queries,
     ...channelResolver.queries,

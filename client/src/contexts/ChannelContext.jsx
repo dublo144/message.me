@@ -6,6 +6,7 @@ const ChannelDispatchContext = React.createContext();
 const initialState = {
   channels: [],
   selectedChannel: null,
+  subscribeToMore: null,
   conversations: [],
   loading: false,
   error: null
@@ -35,7 +36,8 @@ const reducer = (state, action) => {
     case 'SELECT_CHANNEL_SUCCESS': {
       return {
         ...state,
-        selectedChannel: action.payload.selectedChannel
+        selectedChannel: action.payload.selectedChannel,
+        subscribeToMore: action.payload.subscribeToMore
       };
     }
     case 'SELECT_CHANNEL_ERROR': {
@@ -54,6 +56,18 @@ const reducer = (state, action) => {
       return {
         ...state,
         error: action.payload.error
+      };
+    }
+    case 'NEW_MESSAGE': {
+      return {
+        ...state,
+        selectedChannel: {
+          ...state.selectedChannel,
+          messages: [
+            ...state.selectedChannel.messages,
+            action.payload.newMessage
+          ]
+        }
       };
     }
 

@@ -3,10 +3,10 @@ const {
   AuthenticationError,
   UserInputError
 } = require('apollo-server-express');
-const ConversationMessageModel = require('../../models/ConversationMessageModel');
-const { transformChannelMessage } = require('./merge');
+const { transformMessage } = require('./merge');
 const ConversationModel = require('../../models/ConversationModel');
 const MessageModel = require('../../models/MessageModel');
+const server = require('../../server');
 
 module.exports = {
   queries: {},
@@ -28,10 +28,14 @@ module.exports = {
         const channel = await ChannelModel.findById(channelId);
         if (!channel) throw new Error('Channel does not exist');
 
-        channel.channelMessages.push(savedMessage);
-        channel.save();
+        channel.messages.push(savedMessage);
+        await channel.save();
 
-        return transformChannelMessage(savedMessage);
+        server.pubsub.publish(channelId, {
+          message: transformMessage(savedMessage)
+        });
+
+        return transformMessage(savedMessage);
       } catch (error) {
         console.error(error);
         throw error;
@@ -66,10 +70,17 @@ module.exports = {
         conversation.messages.push(savedMessage);
         await conversation.save();
 
-        return savedMessage;
+        return transformMessage(savedMessage);
       } catch (error) {
         console.log(error);
         throw error;
+      }
+    }
+  },
+  subscriptions: {
+    message: {
+      subscribe: (_, { channelId }) => {
+        return server.pubsub.asyncIterator([channelId]);
       }
     }
   }

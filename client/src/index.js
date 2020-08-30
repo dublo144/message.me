@@ -34,13 +34,16 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const wsLink = new WebSocketLink({
-  uri: `ws://${backendUrl}/`,
+  uri: 'ws://localhost:4000/graphql',
   options: {
-    reconnect: false // Set to true
+    reconnect: true, // Set to true
+    connectionParams: {
+      Authorization: `Bearer ${localStorage.getItem('jwtToken')}`
+    }
   }
 });
 
-const splitLink = split(
+const link = split(
   ({ query }) => {
     const definition = getMainDefinition(query);
     return (
@@ -49,12 +52,12 @@ const splitLink = split(
     );
   },
   wsLink,
-  httpLink
+  authLink.concat(httpLink)
 );
 
 const client = new ApolloClient({
   uri: backendUrl,
-  link: authLink.concat(splitLink),
+  link,
   cache: new InMemoryCache()
 });
 

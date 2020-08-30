@@ -20,6 +20,7 @@ const SideBar = () => {
   const { channels, conversations } = useChannelState();
 
   const { loading: userDataLoading } = useQuery(queries.USER_DATA, {
+    fetchPolicy: 'network-only',
     onCompleted: (data) => {
       dispatch({
         type: 'GET_USER_DATA_SUCCESS',
@@ -38,29 +39,32 @@ const SideBar = () => {
       })
   });
 
-  const [channelDetails, { loading: channelLoading }] = useLazyQuery(
-    queries.CHANNEL_DETAILS,
-    {
-      onCompleted: (data) =>
-        dispatch({
-          type: 'SELECT_CHANNEL_SUCCESS',
-          payload: {
-            selectedChannel: data.channelDetails
-          }
-        }),
-      onError: (error) =>
-        dispatch({
-          type: 'SELECT_CHANNEL_ERROR',
-          payload: {
-            error
-          }
-        })
-    }
-  );
+  const [
+    channelDetails,
+    { loading: channelLoading, subscribeToMore }
+  ] = useLazyQuery(queries.CHANNEL_DETAILS, {
+    fetchPolicy: 'network-only',
+    onCompleted: (data) =>
+      dispatch({
+        type: 'SELECT_CHANNEL_SUCCESS',
+        payload: {
+          selectedChannel: data.channelDetails,
+          subscribeToMore
+        }
+      }),
+    onError: (error) =>
+      dispatch({
+        type: 'SELECT_CHANNEL_ERROR',
+        payload: {
+          error
+        }
+      })
+  });
 
   const [conversationDetails, { loading: conversationLoading }] = useLazyQuery(
     queries.CONVERSATION_DETAILS,
     {
+      fetchPolicy: 'network-only',
       onCompleted: (data) =>
         dispatch({
           type: 'SELECT_CONVERSATION_SUCCESS',

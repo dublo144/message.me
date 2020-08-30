@@ -22,10 +22,10 @@ const channelSchema = new Schema({
       ref: 'User'
     }
   ],
-  channelMessages: [
+  messages: [
     {
       type: Schema.Types.ObjectId,
-      ref: 'ChannelMessage'
+      ref: 'Message'
     }
   ]
 });

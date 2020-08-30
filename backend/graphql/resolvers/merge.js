@@ -108,5 +108,6 @@ const transformConversation = (conversation) => {
 module.exports = {
   transformUser,
   transformChannel,
-  transformConversation
+  transformConversation,
+  transformMessage
 };

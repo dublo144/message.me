@@ -16,7 +16,9 @@ const Editor = () => {
   const handleKeyPress = (e) => {
     if (e.which && e.shiftKey) {
     } else if (e.which === 13) {
-      message({ variables: { input: { channelId: id, content } } });
+      e.preventDefault();
+      message({ variables: { channelId: id, content } });
+      setContent();
     }
   };
 
@@ -29,7 +31,7 @@ const Editor = () => {
         />
       }
       content={
-        <Form.Item>
+        <Form.Item extra='Enter to send message. Shift + Enter for new line.'>
           <Input.TextArea
             placeholder={`message ${name}...`}
             autoSize={{ minRows: 4, maxRows: 8 }}

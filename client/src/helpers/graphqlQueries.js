@@ -39,7 +39,7 @@ const CHANNEL_DETAILS = gql`
       id
       name
       description
-      channelMessages {
+      messages {
         id
         user {
           username
@@ -92,9 +92,24 @@ const CONVERSATION_DETAILS = gql`
 `;
 
 const MESSAGE = gql`
-  mutation Message($input: MessageInput!) {
-    message(MessageInput: $input) {
+  mutation NewMessage($channelId: ID!, $content: String!) {
+    newMessage(channelId: $channelId, content: $content) {
       id
+    }
+  }
+`;
+
+const MESSAGE_SUBSCRIPTION = gql`
+  subscription Message($channelId: ID!) {
+    message(channelId: $channelId) {
+      id
+      user {
+        username
+      }
+      content
+      date
+      likes
+      dislikes
     }
   }
 `;
@@ -107,5 +122,6 @@ export const queries = {
   CHANNELS,
   CONVERSATIONS,
   CONVERSATION_DETAILS,
-  MESSAGE
+  MESSAGE,
+  MESSAGE_SUBSCRIPTION
 };

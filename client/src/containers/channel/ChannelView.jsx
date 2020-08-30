@@ -6,44 +6,71 @@ import {
   DislikeFilled,
   LikeFilled,
   SendOutlined,
-  MessageOutlined
+  MessageOutlined,
+  UserAddOutlined
 } from '@ant-design/icons';
-import { Comment, Divider, List, Result } from 'antd';
+import { Comment, Divider, List, PageHeader, Tooltip, Button } from 'antd';
 
 import './channel.less';
-import { useChannelState } from '../../contexts/ChannelContext';
+import {
+  useChannelState,
+  useChannelDispatch
+} from '../../contexts/ChannelContext';
+import { queries } from '../../helpers/graphqlQueries';
 
 const ChannelView = () => {
-  const { selectedChannel, loading } = useChannelState();
+  const { selectedChannel, subscribeToMore, loading } = useChannelState();
+  const dispatch = useChannelDispatch();
+
+  React.useEffect(() => {
+    subscribeToMore({
+      document: queries.MESSAGE_SUBSCRIPTION,
+      variables: { channelId: selectedChannel.id },
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data) return prev;
+        const newMessage = subscriptionData.data.message;
+        dispatch({
+          type: 'NEW_MESSAGE',
+          payload: {
+            newMessage
+          }
+        });
+      }
+    });
+  }, []);
 
   return (
     <>
-      {selectedChannel ? (
-        <List
-          className='comment-list'
-          itemLayout='horizontal'
-          dataSource={selectedChannel.messages}
-          renderItem={(item) => (
-            <li>
-              <Comment
-                actions={item.actions}
-                author={item.user.username}
-                avatar={
-                  'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png'
-                }
-                content={item.content}
-                datetime={moment(item.datetime).fromNow()}
-              />
-              <Divider />
-            </li>
-          )}
-        />
-      ) : (
-        <Result
-          icon={<MessageOutlined />}
-          title='Select a channel to the left'
-        />
-      )}
+      <PageHeader
+        title={`# ${selectedChannel.name}`}
+        subTitle={selectedChannel.description}
+        avatar={{ src: `${selectedChannel.avatar}` }}
+        extra={[
+          <Tooltip title={'Add user to channel'} key={'addUserBtn'}>
+            <Button shape='circle-outline' icon={<UserAddOutlined />} />
+          </Tooltip>
+        ]}
+      />
+      <Divider />
+      <List
+        className='comment-list'
+        itemLayout='horizontal'
+        dataSource={selectedChannel.messages}
+        renderItem={(item) => (
+          <li>
+            <Comment
+              actions={item.actions}
+              author={item.user.username}
+              avatar={
+                'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png'
+              }
+              content={item.content}
+              datetime={moment(item.datetime).fromNow()}
+            />
+            <Divider />
+          </li>
+        )}
+      />
     </>
   );
 };

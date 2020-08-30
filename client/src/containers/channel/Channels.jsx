@@ -1,11 +1,12 @@
 import React from 'react';
-import { Layout, PageHeader } from 'antd';
+import { Layout, PageHeader, Button, Tooltip, Result } from 'antd';
 import './channel.less';
 import SideBar from '../../components/layout/sidebar/SideBar';
 import AppHeader from '../../components/layout/header/AppHeader';
 import ChannelView from './ChannelView';
 import Editor from './Editor';
 import { useChannelState } from '../../contexts/ChannelContext';
+import { MessageOutlined } from '@ant-design/icons';
 
 const Channels = () => {
   const { selectedChannel } = useChannelState();
@@ -26,24 +27,24 @@ const Channels = () => {
             marginLeft: '15vw'
           }}
         >
-          {selectedChannel && (
-            <PageHeader
-              title={`# ${selectedChannel.name}`}
-              subTitle={selectedChannel.description}
-              avatar={{ src: `${selectedChannel.avatar}` }}
-            />
-          )}
           <Layout.Content
             style={{
               borderRadius: 10,
               overflowY: 'auto',
               backgroundColor: 'white',
-              maxHeight: '63vh',
+              maxHeight: '70vh',
               marginLeft: 24,
               padding: 24
             }}
           >
-            <ChannelView />
+            {selectedChannel ? (
+              <ChannelView />
+            ) : (
+              <Result
+                icon={<MessageOutlined />}
+                title='Select a channel to the left'
+              />
+            )}
           </Layout.Content>
           {selectedChannel && (
             <Layout.Footer

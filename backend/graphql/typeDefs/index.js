@@ -33,7 +33,7 @@ module.exports = gql`
     description: String
     admins: [User!]!
     members: [User!]!
-    channelMessages: [Message!]!
+    messages: [Message!]!
   }
 
   input ChannelInput {
@@ -57,13 +57,6 @@ module.exports = gql`
     name: String
     description: String
     messages: [Message!]!
-  }
-
-  type ConversationMessage {
-    id: ID!
-    user: User!
-    content: String!
-    date: String!
   }
 
   type Query {
@@ -92,5 +85,9 @@ module.exports = gql`
       description: String
     ): Conversation!
     newConversationMessage(conversationId: ID!, content: String!): Message!
+  }
+
+  type Subscription {
+    message(channelId: ID!): Message!
   }
 `;
