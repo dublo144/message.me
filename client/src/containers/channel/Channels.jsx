@@ -4,7 +4,7 @@ import './channel.less';
 import SideBar from '../../components/layout/sidebar/SideBar';
 import AppHeader from '../../components/layout/header/AppHeader';
 import ChannelView from './ChannelView';
-import Editor from './Editor';
+import Editor from '../../components/channel/Editor';
 import { useChannelState } from '../../contexts/ChannelContext';
 import { MessageOutlined } from '@ant-design/icons';
 

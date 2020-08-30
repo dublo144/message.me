@@ -46,6 +46,12 @@ const reducer = (state, action) => {
         error: action.payload.error
       };
     }
+    case 'CREATE_CHANNEL_SUCCESS': {
+      return {
+        ...state,
+        channels: [...state.channels, payload.createdChannel]
+      };
+    }
     case 'SELECT_CONVERSATION_SUCCESS': {
       return {
         ...state,

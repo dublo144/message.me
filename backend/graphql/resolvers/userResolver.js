@@ -9,10 +9,12 @@ const { transformUser } = require('./merge');
 
 module.exports = {
   queries: {
-    users: async (_, __, { user }) => {
+    users: async (_, { email }, { user }) => {
       try {
         if (!user) throw new AuthenticationError('Unauthenticated');
-        const users = await UserModel.find();
+        const users = await UserModel.find({
+          email: { $regex: email || '', $options: 'i' }
+        });
         return users.map(transformUser);
       } catch (error) {
         console.error(error);

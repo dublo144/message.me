@@ -62,6 +62,16 @@ const CHANNELS = gql`
   }
 `;
 
+const CREATE_CHANNEL = gql`
+  mutation CreateChannel($input: ChannelInput!) {
+    createChannel(ChannelInput: $input) {
+      id
+      name
+      description
+    }
+  }
+`;
+
 const CONVERSATIONS = gql`
   query Conversations {
     conversations {
@@ -114,14 +124,27 @@ const MESSAGE_SUBSCRIPTION = gql`
   }
 `;
 
+const USER_SEARCH = gql`
+  query UserSearch($email: String) {
+    users(email: $email) {
+      _id
+      firstName
+      lastName
+      email
+    }
+  }
+`;
+
 export const queries = {
   SIGN_IN,
   SIGN_UP,
   USER_DATA,
   CHANNEL_DETAILS,
   CHANNELS,
+  CREATE_CHANNEL,
   CONVERSATIONS,
   CONVERSATION_DETAILS,
   MESSAGE,
-  MESSAGE_SUBSCRIPTION
+  MESSAGE_SUBSCRIPTION,
+  USER_SEARCH
 };

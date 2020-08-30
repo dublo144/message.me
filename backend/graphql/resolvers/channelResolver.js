@@ -57,18 +57,24 @@ module.exports = {
         // Are we authenticated?
         if (!user) throw new AuthenticationError('Unauthenticated');
 
+        // Find the memberId from their email
+        const userIds = await UserModel.find({
+          email: { $in: args.ChannelInput.members }
+        }).distinct('_id', (err, results) => results);
+        console.log(userIds);
+
         // Create Channel Mongoose Model
         const channel = new ChannelModel({
           name: args.ChannelInput.name,
           description: args.ChannelInput.description,
           admins: [user.userId],
-          members: [...args.ChannelInput.members, user.userId]
+          members: [...userIds, user.userId]
         });
         const savedChannel = await channel.save();
 
         // Find the members
         const users = await UserModel.find({
-          _id: { $in: [...args.ChannelInput.members, user.userId] }
+          _id: { $in: [...userIds, user.userId] }
         });
         // Add the channel to the members
         users.map(async (user) => {

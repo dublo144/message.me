@@ -12,6 +12,7 @@ import {
   useChannelDispatch,
   useChannelState
 } from '../../../contexts/ChannelContext';
+import NewChannelModal from '../../channel/NewChannelModal';
 
 const { Sider } = Layout;
 
@@ -128,13 +129,7 @@ const SideBar = () => {
             </Menu.Item>
           ))}
           <Menu.Item>
-            <Tooltip title={'New channel'}>
-              <Button
-                icon={<PlusCircleOutlined />}
-                style={{ width: '100%' }}
-                type={'dashed'}
-              />
-            </Tooltip>
+            <NewChannelModal />
           </Menu.Item>
         </Menu.SubMenu>
 

@@ -7,7 +7,7 @@ const {
 const mongoose = require('mongoose');
 const resolvers = require('./graphql/resolvers');
 const typeDefs = require('./graphql/typeDefs');
-const authMiddleware = require('./utils/authMiddleware');
+const authMiddleware = require('./middleware/authMiddleware');
 const jwt = require('jsonwebtoken');
 const http = require('http');
 
@@ -15,7 +15,7 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   subscriptions: {
-    onConnect: (connectionParams, webSocket) => {
+    onConnect: (connectionParams) => {
       if (connectionParams.Authorization) {
         const token = connectionParams.Authorization.split('Bearer ')[1];
         return jwt.verify(token, process.env.SECRET, (err, decodedToken) => {

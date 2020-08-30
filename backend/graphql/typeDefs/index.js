@@ -39,7 +39,7 @@ module.exports = gql`
   input ChannelInput {
     name: String!
     description: String
-    members: [ID!]
+    members: [String!]
   }
 
   type Message {
@@ -60,7 +60,7 @@ module.exports = gql`
   }
 
   type Query {
-    users: [User!]!
+    users(email: String): [User!]!
     userData(userId: String): User!
 
     signIn(email: String!, password: String!): AuthData!
