@@ -1,11 +1,39 @@
-const ChannelModel = require('../../models/ChannelModel');
-const UserModel = require('../../models/UserModel');
-const { transformChannel } = require('./merge');
-const { AuthenticationError } = require('apollo-server-express');
-const MessageModel = require('../../models/MessageModel');
+const { gql, AuthenticationError } = require('apollo-server-express');
+const { transformChannel } = require('../../helpers/merge');
+const UserModel = require('../../../models/UserModel');
+const ChannelModel = require('../../../models/ChannelModel');
 
-module.exports = {
-  queries: {
+const typeDefs = gql`
+  type Channel {
+    id: ID!
+    name: String!
+    description: String
+    admins: [User!]!
+    members: [User!]!
+    messages: [Message!]!
+    isAdmin: Boolean
+  }
+
+  input ChannelInput {
+    name: String!
+    description: String
+    members: [String!]
+  }
+
+  extend type Query {
+    channels: [Channel!]!
+    channelDetails(channelId: String!): Channel!
+  }
+
+  extend type Mutation {
+    createChannel(ChannelInput: ChannelInput!): Channel!
+    deleteChannel(channelId: ID!): Channel!
+    subscribeToChannel(channelId: String!): Channel!
+  }
+`;
+
+const resolvers = {
+  Query: {
     channels: async (_, __, { user }) => {
       try {
         if (!user) throw new AuthenticationError('Unauthenticated');
@@ -33,7 +61,7 @@ module.exports = {
       }
     }
   },
-  mutations: {
+  Mutation: {
     subscribeToChannel: async (_, { channelId }, { user }) => {
       try {
         if (!context.user) throw new AuthenticationError('Unauthenticated');
@@ -63,7 +91,6 @@ module.exports = {
         const userIds = await UserModel.find({
           email: { $in: args.ChannelInput.members }
         }).distinct('_id', (err, results) => results);
-        console.log(userIds);
 
         // Create Channel Mongoose Model
         const channel = new ChannelModel({
@@ -113,4 +140,9 @@ module.exports = {
       }
     }
   }
+};
+
+module.exports = {
+  typeDefs,
+  resolvers
 };
