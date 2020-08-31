@@ -1,13 +1,35 @@
 const {
+  gql,
   AuthenticationError,
   UserInputError
 } = require('apollo-server-express');
-const ConversationModel = require('../../models/ConversationModel');
-const { transformConversation } = require('./merge');
-const UserModel = require('../../models/UserModel');
+const { transformConversation } = require('../../helpers/merge');
 
-module.exports = {
-  queries: {
+const typeDefs = gql`
+  type Conversation {
+    id: ID!
+    members: [User!]!
+    name: String
+    description: String
+    messages: [Message!]!
+  }
+
+  extend type Query {
+    conversations: [Conversation!]!
+    conversationDetails(conversationId: ID!): Conversation!
+  }
+
+  extend type Mutation {
+    newConversation(
+      memberIds: [ID!]!
+      name: String
+      description: String
+    ): Conversation!
+  }
+`;
+
+const resolvers = {
+  Query: {
     conversations: async (_, __, { user }) => {
       try {
         if (!user) throw new AuthenticationError('Unauthenticated');
@@ -34,7 +56,7 @@ module.exports = {
       }
     }
   },
-  mutations: {
+  Mutation: {
     newConversation: async (_, { memberIds, name, description }, { user }) => {
       try {
         if (!user) throw new AuthenticationError('Unauthenticated');
@@ -74,4 +96,9 @@ module.exports = {
       }
     }
   }
+};
+
+module.exports = {
+  typeDefs,
+  resolvers
 };

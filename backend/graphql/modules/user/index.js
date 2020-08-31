@@ -1,14 +1,53 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const UserModel = require('../../models/UserModel');
 const {
+  gql,
   AuthenticationError,
   UserInputError
 } = require('apollo-server-express');
-const { transformUser } = require('./merge');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const UserModel = require('../../../models/UserModel');
+const { transformUser } = require('../../helpers/merge');
 
-module.exports = {
-  queries: {
+const typeDefs = gql`
+  type User {
+    _id: ID!
+    firstName: String!
+    lastName: String!
+    username: String!
+    email: String!
+    password: String
+    channels: [Channel!]!
+    conversations: [Conversation!]!
+  }
+
+  input UserInput {
+    firstName: String!
+    lastName: String!
+    username: String!
+    email: String!
+    password: String!
+  }
+
+  type AuthData {
+    username: String!
+    userId: ID!
+    token: String!
+    tokenExpiration: Int!
+  }
+
+  extend type Query {
+    users(email: String): [User!]!
+    userData(userId: String): User!
+    signIn(email: String!, password: String!): AuthData!
+  }
+
+  extend type Mutation {
+    signUp(UserInput: UserInput!): User!
+  }
+`;
+
+const resolvers = {
+  Query: {
     users: async (_, { email }, { user }) => {
       try {
         if (!user) throw new AuthenticationError('Unauthenticated');
@@ -63,7 +102,7 @@ module.exports = {
       };
     }
   },
-  mutations: {
+  Mutation: {
     signUp: async (_, args) => {
       try {
         const existingUser = await UserModel.findOne({
@@ -89,5 +128,11 @@ module.exports = {
         throw error;
       }
     }
-  }
+  },
+  Subscription: {}
+};
+
+module.exports = {
+  typeDefs,
+  resolvers
 };

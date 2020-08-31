@@ -5,15 +5,17 @@ const {
   PubSub
 } = require('apollo-server-express');
 const mongoose = require('mongoose');
-const resolvers = require('./graphql/resolvers');
-const typeDefs = require('./graphql/typeDefs');
 const authMiddleware = require('./middleware/authMiddleware');
 const jwt = require('jsonwebtoken');
 const http = require('http');
 
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
+  modules: [
+    require('./graphql/modules/user'),
+    require('./graphql/modules/channel'),
+    require('./graphql/modules/conversation'),
+    require('./graphql/modules/message')
+  ],
   subscriptions: {
     onConnect: (connectionParams) => {
       if (connectionParams.Authorization) {
