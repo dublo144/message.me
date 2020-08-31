@@ -4,10 +4,12 @@ import { PlusCircleOutlined } from '@ant-design/icons';
 import UserAutoSearch from '../helpers/UserAutoSearch';
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { queries } from '../../helpers/graphqlQueries';
+import { useChannelDispatch } from '../../contexts/ChannelContext';
 
 const NewChannelModal = () => {
   const [visible, setVisible] = React.useState(false);
   const [selectedMembers, setSelectedMembers] = React.useState([]);
+  const dispatch = useChannelDispatch();
 
   const [createChannel, { loading: createChannelLoading }] = useMutation(
     queries.CREATE_CHANNEL,
@@ -34,10 +36,6 @@ const NewChannelModal = () => {
   };
 
   const handleSubmit = (values) => {
-    console.log({
-      ...values,
-      members: selectedMembers
-    });
     createChannel({
       variables: { input: { ...values, members: selectedMembers } }
     });

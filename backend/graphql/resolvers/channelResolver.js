@@ -1,6 +1,8 @@
 const ChannelModel = require('../../models/ChannelModel');
 const UserModel = require('../../models/UserModel');
 const { transformChannel } = require('./merge');
+const { AuthenticationError } = require('apollo-server-express');
+const MessageModel = require('../../models/MessageModel');
 
 module.exports = {
   queries: {
@@ -82,8 +84,29 @@ module.exports = {
           await user.save();
         });
 
+        const isAdmin = savedChannel.admins.includes(user.userId);
+
         // Return the channel
-        return transformChannel(savedChannel);
+        return transformChannel(savedChannel, isAdmin);
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
+    deleteChannel: async (_, { channelId }, { user }) => {
+      try {
+        if (!user) throw new AuthenticationError('Unauthenticated');
+
+        const channel = await ChannelModel.findById(channelId);
+
+        if (!channel.admins.includes(user.userId))
+          throw new AuthenticationError(
+            'User is not an admin of the given channel'
+          );
+
+        await channel.remove();
+
+        return transformChannel(channel);
       } catch (error) {
         console.error(error);
         throw error;

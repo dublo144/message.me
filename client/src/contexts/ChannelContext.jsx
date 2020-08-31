@@ -49,7 +49,16 @@ const reducer = (state, action) => {
     case 'CREATE_CHANNEL_SUCCESS': {
       return {
         ...state,
-        channels: [...state.channels, payload.createdChannel]
+        channels: [...state.channels, action.payload.createdChannel]
+      };
+    }
+    case 'DELETE_CHANNEL_SUCCESS': {
+      return {
+        ...state,
+        channels: state.channels.filter(
+          (c) => c.id !== action.payload.channelId
+        ),
+        selectedChannel: undefined
       };
     }
     case 'SELECT_CONVERSATION_SUCCESS': {

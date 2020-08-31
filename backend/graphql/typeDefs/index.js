@@ -34,6 +34,7 @@ module.exports = gql`
     admins: [User!]!
     members: [User!]!
     messages: [Message!]!
+    isAdmin: Boolean
   }
 
   input ChannelInput {
@@ -76,6 +77,7 @@ module.exports = gql`
     signUp(UserInput: UserInput!): User!
 
     createChannel(ChannelInput: ChannelInput!): Channel!
+    deleteChannel(channelId: ID!): Channel!
     subscribeToChannel(channelId: String!): Channel!
     newMessage(channelId: ID!, content: String!): Message!
 

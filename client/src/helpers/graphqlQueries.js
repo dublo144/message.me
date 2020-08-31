@@ -39,6 +39,9 @@ const CHANNEL_DETAILS = gql`
       id
       name
       description
+      admins {
+        _id
+      }
       messages {
         id
         user {
@@ -68,6 +71,15 @@ const CREATE_CHANNEL = gql`
       id
       name
       description
+    }
+  }
+`;
+
+const DELETE_CHANNEL = gql`
+  mutation DeleteChannel($channelId: ID!) {
+    deleteChannel(channelId: $channelId) {
+      id
+      name
     }
   }
 `;
@@ -142,6 +154,7 @@ export const queries = {
   CHANNEL_DETAILS,
   CHANNELS,
   CREATE_CHANNEL,
+  DELETE_CHANNEL,
   CONVERSATIONS,
   CONVERSATION_DETAILS,
   MESSAGE,
