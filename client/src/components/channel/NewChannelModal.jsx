@@ -43,7 +43,7 @@ const NewChannelModal = () => {
 
   return (
     <>
-      <Tooltip title={'New channel'}>
+      <Tooltip title={'New channel'} placement={'right'}>
         <Button
           icon={<PlusCircleOutlined />}
           style={{ width: '100%' }}

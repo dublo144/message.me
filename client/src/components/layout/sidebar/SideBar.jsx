@@ -150,7 +150,7 @@ const SideBar = () => {
             </Menu.Item>
           ))}
           <Menu.Item>
-            <Tooltip title={'New private conversation'}>
+            <Tooltip title={'New private conversation'} placement={'right'}>
               <Button
                 icon={<PlusCircleOutlined />}
                 style={{ width: '100%' }}
